@@ -2,30 +2,38 @@
 
 /*
  * https://bitcoin-24.com/user_api
- * donation: 1LfB9ZSTaz6UM8EmLPsdHzNaJyNKGQpw45
+ * 1LfB9ZSTaz6UM8EmLPsdHzNaJyNKGQpw45
  */
-
 class Btc24 {
 
-    private $apikey = 'APIKEYHERE';
-    private $user = 'USERNAME';
+    private $apikey = BTC24_API_KEY;
+    private $user = BTC24_USER;
     private $trades = 0;
 
-    function btc24() {
-        
+    function Btc24() {
     }
 
     private function getjson($params) {
         return $this->curl_download("https://bitcoin-24.com/api/user_api.php", $params);
     }
-
-    private function makeparams($do) {
-        return array(   'user' =>   urlencode($this->user) ,
-                        'key' =>    urlencode($this->apikey) ,
-                        'api' =>    urlencode($do) );
+    
+    public function getTransactions(){
+        //nicht möglich
+        //return $this->curl_download("https://bitcoin-24.com/api/export.php?type=json", $this->params());
+        return NULL;
     }
 
-    private static function curl_download($url, $post = NULL) {
+    private function makeparams($do) {
+        return array_merge(array( 'api' => urlencode($do)), $this->params());
+    }
+    
+    private function params() {
+        return array(   'user' =>   urlencode($this->user) ,
+                        'key' =>    urlencode($this->apikey)
+                    );
+    }
+
+	private static function curl_download($url, $post = NULL) {
         if (!function_exists('curl_init')) {
             die('Sorry cURL is not installed!');
         }
@@ -51,8 +59,7 @@ class Btc24 {
       btc - Total Bitcoin
       btc_available - Bitcoin available for trading
      */
-
-    public function get_balance() {
+	public function get_balance() {
         $params = $this->makeparams('get_balance');
         return $this->getjson($params);
     }
@@ -62,10 +69,11 @@ class Btc24 {
         Return
         address - Your Bitcoin address on Bitcoin-24
      */
-  public function get_addr() {
+	public function get_addr() {
         $params = $this->makeparams('get_addr');
         return $this->getjson($params);
     }
+    
     /*
         Open Orders
         Return
@@ -112,7 +120,7 @@ class Btc24 {
         date - timestamp
         cur - Currency EUR, USD
      */
-  public function buy_btc($amount,$price,$cur) {
+	public function buy_btc($amount,$price,$cur) {
         $params = array_merge(array('amount' => $amount, 'price' => $price,'cur'=> $cur ),$this->makeparams('buy_btc'));
         return $this->getjson($params);
     } 
@@ -132,7 +140,7 @@ class Btc24 {
         date - timestamp
         cur - Currency EUR, USD
      */
-  public function sell_btc($amount,$price,$cur) {
+	public function sell_btc($amount,$price,$cur) {
         $params = array_merge(array('amount' => $amount, 'price' => $price,'cur'=> $cur ),$this->makeparams('buy_btc'));
         $params = $this->makeparams('sell_btc');
         return $this->getjson($params);
@@ -150,17 +158,18 @@ class Btc24 {
         Return
         trans - Transaction ID
      */
-  public function withdraw_btc($amount,$address ) {
+	public function withdraw_btc($amount,$address ) {
         $params = array_merge(array('amount' => $amount, 'address' => $address),$this->makeparams('buy_btc'));
         return $this->getjson($params);
     } 
+    
     /*
         http://bitcoin24.zendesk.com/entries/21851651-API-trades-and-orderbook
 
         https://bitcoin-24.com/api/EUR/trades.json (with ?since=id parameter)
         https://bitcoin-24.com/api/USD/trades.json  (with ?since=id parameter)
      */
-  public function get_trades($eur = TRUE, $since = NULL) {
+	public function get_trades($since = NULL, $eur = TRUE) {
         if($eur){
             $url = 'https://bitcoin-24.com/api/EUR/trades.json';
         }else{
@@ -171,6 +180,7 @@ class Btc24 {
         }
         return $this->curl_download($url);
     }
+    
     /*
         https://bitcoin-24.com/api/EUR/orderbook.json
         https://bitcoin-24.com/api/USD/orderbook.json
@@ -183,9 +193,7 @@ class Btc24 {
             
         }
         return $this->curl_download($url);
-        
     }
-
 }
 
 
